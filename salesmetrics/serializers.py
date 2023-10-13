@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 
-from .models import Customer
+from .models import (Customer, SalesPerson, Supervisor)
 
 
 class UserSerializer(serializers.Serializer):
@@ -22,4 +22,18 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['customer_id', 'phone_number',
                   'kra_pin', 'contact_person', 'address', 'user']
+        user = UserSerializer()
+
+
+class SalesPersonSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SalesPerson
+        fields = ['sales_person_id', 'phone_number', 'user']
+        user = UserSerializer()
+
+
+class SupervisorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supervisor
+        fields = ['supervisor_id', 'phone_number', 'user']
         user = UserSerializer()
