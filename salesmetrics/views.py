@@ -2,9 +2,9 @@ from django.conf import settings
 
 from rest_framework.viewsets import ModelViewSet
 
-from .models import (Customer, SalesPerson, Supervisor)
+from .models import (Customer, SalesPerson, Supervisor, Manager)
 from .serializers import (
-    CustomerSerializer, SalesPersonSerializer, SupervisorSerializer)
+    CustomerSerializer, SalesPersonSerializer, SupervisorSerializer, ManagerSerializer)
 
 
 class CustomerViewSet(ModelViewSet):
@@ -20,3 +20,8 @@ class SalesPersonViewSet(ModelViewSet):
 class SupervisorViewSet(ModelViewSet):
     queryset = Supervisor.objects.all()
     serializer_class = SupervisorSerializer
+
+
+class ManagerViewSet(ModelViewSet):
+    queryset = Manager.objects.all()
+    serializer_class = ManagerSerializer
