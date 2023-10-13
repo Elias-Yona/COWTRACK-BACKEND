@@ -8,5 +8,6 @@ router.register('customers', views.CustomerViewSet)
 router.register('salespersons', views.SalesPersonViewSet)
 router.register('supervisors', views.SupervisorViewSet)
 router.register('managers', views.ManagerViewSet)
+router.register('suppliers', views.SupplierViewSet)
 
 urlpatterns = router.urls

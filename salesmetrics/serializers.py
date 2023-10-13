@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import (Customer, SalesPerson, Supervisor, Manager)
+from .models import (Customer, SalesPerson, Supervisor, Manager, Supplier)
 
 
 class UserSerializer(serializers.Serializer):
@@ -41,4 +41,12 @@ class ManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Manager
         fields = ['manager_id', 'phone_number', 'user']
+        user = UserSerializer()
+
+
+class SupplierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supplier
+        fields = ['supplier_id', 'phone_number',
+                  'kra_pin', 'contact_person', 'notes', 'user']
         user = UserSerializer()

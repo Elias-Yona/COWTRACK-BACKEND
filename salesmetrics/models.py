@@ -40,7 +40,6 @@ class Supplier(models.Model):
     phone_number = models.CharField(max_length=15)
     kra_pin = models.CharField(max_length=20, unique=True)
     contact_person = models.CharField(max_length=15)
-    email = models.EmailField(max_length=50, unique=True)
     notes = models.TextField()
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
