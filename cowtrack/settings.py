@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # Third party apps
     'djmoney',
     "debug_toolbar",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
