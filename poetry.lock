@@ -50,6 +50,17 @@ django = ">=3.2.4"
 sqlparse = ">=0.2"
 
 [[package]]
+name = "pep8"
+version = "1.7.1"
+description = "Python style guide checker"
+optional = false
+python-versions = "*"
+files = [
+    {file = "pep8-1.7.1-py2.py3-none-any.whl", hash = "sha256:b22cfae5db09833bb9bd7c8463b53e1a9c9b39f12e304a8d0bba729c501827ee"},
+    {file = "pep8-1.7.1.tar.gz", hash = "sha256:fe249b52e20498e59e0b5c5256aa52ee99fc295b26ec9eaa85776ffdb9fe6374"},
+]
+
+[[package]]
 name = "sqlparse"
 version = "0.4.4"
 description = "A non-validating SQL parser."
@@ -79,4 +90,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "42f3110f2898c00fcb73ec9d510dbeacf268ceb6e00f81a0125087fee88df309"
+content-hash = "ebf540be6c10cf9f8478b1ae8ebb7765ff19a14f79632b4923641bbb63db5a81"

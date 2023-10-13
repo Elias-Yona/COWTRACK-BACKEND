@@ -11,6 +11,9 @@ django = "^4.2.6"
 django-debug-toolbar = "^4.2.0"
 
 
+[tool.poetry.group.dev.dependencies]
+pep8 = "^1.7.1"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
