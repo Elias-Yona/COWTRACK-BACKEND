@@ -141,3 +141,9 @@ INTERNAL_IPS = [
 ]
 
 AUTH_USER_MODEL = 'core.user'
+
+# for testing purposes
+if DEBUG:
+    PASSWORD_HASHERS = [
+        'django.contrib.auth.hashers.MD5PasswordHasher',
+    ]

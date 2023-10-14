@@ -44,9 +44,6 @@ class CustomDummy2dbMySqlHandler(Dummy2dbMySqlHandler):
             spinner.write("✅ Done data loading")
 
         for i in tqdm(range(0, len(data))):
-            if self.table_name == "core_user":
-                data[i]["password"] = make_password(
-                    data[i].get("password"))
             multi_lines.append(
                 list(ujson.loads(ujson.dumps(data[i])).values()))
 
