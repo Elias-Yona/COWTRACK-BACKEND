@@ -50,7 +50,8 @@ class CustomDummy2dbMySqlHandler(Dummy2dbMySqlHandler):
         with yaspin(text="saving data", color="yellow") as spinner:
             self.commit_transaction(host=host, port=port, password=password,
                                     username=username, name=name, operation=payload, data=multi_lines)
-            spinner.write("✅ Done saving data to the database")
+            spinner.write(
+                f"✅ Done saving {self.table_name} data to the database")
             print("\n")
 
 
@@ -63,7 +64,7 @@ def main():
 
     django.setup()
 
-    _mysqld_process_checkpoint()
+    # _mysqld_process_checkpoint()
 
     tables = [
         {
@@ -136,19 +137,19 @@ def main():
         {
             "table_name": "salesmetrics_stock",
             "field_names": ["stock_id", "quantity_on_hand", "branch_id", "product_id"],
-            "data": "data/salesmetrics_stocks.json"
+            "data": "data/salesmetrics_stock.json"
         },
     ]
 
-    users_mysql_handler = CustomDummy2dbMySqlHandler(
-        table_name="core_user",
-        field_names=["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name",
-                     "email", "is_staff", "is_active", "date_joined"],
-        data="data/core_users.json"
-    )
+    for table in tables:
+        table_mysql_handler = CustomDummy2dbMySqlHandler(
+            table_name=table.get("table_name"),
+            field_names=table.get("field_names"),
+            data=table.get("data")
+        )
 
-    users_mysql_handler.populate_table_mysql_initiator(
-        "127.0.0.1", 3306, "", "root", "cowtrack")
+        table_mysql_handler.populate_table_mysql_initiator(
+            "127.0.0.1", 3306, "", "root", "cowtrack")
 
 
 if __name__ == '__main__':
