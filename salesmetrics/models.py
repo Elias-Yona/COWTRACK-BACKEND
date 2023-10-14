@@ -82,7 +82,7 @@ class Product(models.Model):
     selling_price = MoneyField(
         max_digits=19, decimal_places=4, default_currency='KSH')
     is_serialized = models.BooleanField(default=1)
-    serial_number = models.CharField(max_length=50)
+    serial_number = models.CharField(max_length=50, null=True)
     category = models.ForeignKey(
         ProductCategory, on_delete=models.SET_NULL, null=True)
     branch = models.ForeignKey(
