@@ -37,7 +37,7 @@ def _mysqld_process_checkpoint():
 class CustomDummy2dbMySqlHandler(Dummy2dbMySqlHandler):
     def populate_table_mysql_initiator(self, host, port, password, username, name):
         payload = self.operation()
-        multi_lines = [None] * 1000
+        multi_lines = []
 
         with yaspin(text="Loading data", color="yellow") as spinner:
             data = self.process_data(self.data)
