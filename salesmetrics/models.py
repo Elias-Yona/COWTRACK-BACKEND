@@ -92,7 +92,7 @@ class Product(models.Model):
 class Stock(models.Model):
     stock_id = models.BigAutoField(primary_key=True)
     quantity_on_hand = models.IntegerField()
-    product = models.ForeignKey(
+    product = models.OneToOneField(
         Product, on_delete=models.CASCADE)
     branch = models.ForeignKey(
         Branch, on_delete=models.SET_NULL, null=True)
