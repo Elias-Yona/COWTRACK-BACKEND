@@ -25,6 +25,3 @@ def main(db=None):
     if db is None:
         logger.error(
             'Provide a database name!', extra=extra_information)
-
-
-main()
