@@ -30,7 +30,7 @@ class Dummy2dbMySqlHandler:
                          extra=extra_information)
             sys.exit(1)
 
-    def populate_table(self):
+    def populate_table_mysql_initiator(self, host, port, password, username, name):
         payload = f"INSERT INTO {self.table_name}("
 
         for field_name in self.field_names:
@@ -52,7 +52,34 @@ class Dummy2dbMySqlHandler:
             multi_lines.append(
                 list(ujson.loads(ujson.dumps(data[i])).values()))
 
-        return multi_lines
+        self.commit_transaction(host=host, port=port, password=password,
+                                username=username, name=name, operation=payload, data=multi_lines)
+
+    def commit_transaction(self, host: str = "127.0.0.1", port: int = 3306, password: str = "", username: str = "root", name=None, operation: str = None, data: Union[List[List], List[Tuple]] = []):
+        conn, cursor = None, None
+
+        if not name or not operation or not data:
+            logger.error(
+                "Database name or operation or data is missing!", extra=extra_information)
+            sys.exit(1)
+        else:
+            db = name
+
+        try:
+            conn = mysql.connector.connect(
+                user=username, host=host, port=port, password=password)
+            cursor = conn.cursor()
+            cursor.execute(f"USE {db}")
+            cursor.executeMany(operation, data)
+            conn.commit()
+
+            cursor.close()
+            conn.close()
+        except Exception as e:
+            logger.error(e, extra=extra_information)
+        else:
+            logger.info('Data was commited successfully!',
+                        extra=extra_information)
 
     def process_data(self, filename: str):
         '''loads a file based on file extension'''
