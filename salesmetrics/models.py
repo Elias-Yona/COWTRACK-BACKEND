@@ -142,5 +142,5 @@ class Sale(models.Model):
         Cart, on_delete=models.SET_NULL, null=True)
     customer = models.ForeignKey(
         Customer, on_delete=models.SET_NULL, null=True)
-    payment_method = models.OneToOneField(
+    payment_method = models.ForeignKey(
         PaymentMethod, on_delete=models.SET_NULL, null=True)
