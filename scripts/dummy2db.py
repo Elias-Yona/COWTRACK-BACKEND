@@ -65,6 +65,15 @@ def main():
 
     _mysqld_process_checkpoint()
 
+    tables = [
+        {
+            "table_name": "core_user",
+            "field_names": ["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name",
+                            "email", "is_staff", "is_active", "date_joined"],
+            "data": "data/core_users.json"
+        }
+    ]
+
     users_mysql_handler = CustomDummy2dbMySqlHandler(
         table_name="core_user",
         field_names=["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name",
