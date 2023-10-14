@@ -30,7 +30,9 @@ class Dummy2dbMySqlHandler:
                          extra=extra_information)
             sys.exit(1)
 
-    def populate_table_mysql_initiator(self, host, port, password, username, name):
+    def operation(self):
+        '''Creates an insert sttaement dynamically'''
+
         payload = f"INSERT INTO {self.table_name}("
 
         for field_name in self.field_names:
@@ -44,7 +46,12 @@ class Dummy2dbMySqlHandler:
 
         payload = payload[:-6] + " )"
 
+        return payload
+
+    def populate_table_mysql_initiator(self, host, port, password, username, name):
+        payload = self.operation()
         multi_lines = []
+
         if isinstance(self.data, str):
             data = self.process_data(self.data)
 
@@ -70,7 +77,7 @@ class Dummy2dbMySqlHandler:
                 user=username, host=host, port=port, password=password)
             cursor = conn.cursor()
             cursor.execute(f"USE {db}")
-            cursor.executeMany(operation, data)
+            cursor.executemany(operation, data)
             conn.commit()
 
             cursor.close()
@@ -82,21 +89,20 @@ class Dummy2dbMySqlHandler:
                         extra=extra_information)
 
     def process_data(self, filename: str):
-        '''loads a file based on file extension'''
+        '''loads data as a stream'''
         extensions = ('json',)
 
         if not self.get_file_extension(filename) in extensions:
             raise NotImplementedError()
         else:
-            with open(filename, "r") as f:
-                data = f.read()
-            return ujson.loads(data)
+            try:
+                with open(filename, "r") as f:
+                    data = f.read()
+                return ujson.loads(data)
+            except FileNotFoundError:
+                logger.error("File not found", extra=extra_information)
 
     def get_file_extension(self, filename: str):
         '''Returns the file extension of a file'''
         root, extension = os.path.splitext(filename)
         return extension[1:]
-
-
-a = Dummy2dbMySqlHandler("rest", ["id", "name", "dob"], "data/core_users.json")
-print(a.populate_table())
