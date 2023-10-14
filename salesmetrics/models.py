@@ -121,7 +121,7 @@ class StockDistribution(models.Model):
 class Cart(models.Model):
     cart_id = models.BigAutoField(primary_key=True)
     number_of_items = models.IntegerField()
-    product_id = models.ForeignKey(
+    product = models.ForeignKey(
         Product, on_delete=models.SET_NULL, null=True)
 
 
