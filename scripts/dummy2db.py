@@ -71,7 +71,73 @@ def main():
             "field_names": ["id", "password", "last_login", "is_superuser", "username", "first_name", "last_name",
                             "email", "is_staff", "is_active", "date_joined"],
             "data": "data/core_users.json"
-        }
+        },
+        {
+            "table_name": "salesmetrics_customer",
+            "field_names": ["customer_id", "phone_number", "kra_pin", "contact_person", "address", "user_id"],
+            "data": "data/salesmetrics_customers.json"
+        },
+        {
+            "table_name": "salesmetrics_manager",
+            "field_names": ["manager_id", "phone_number", "user_id"],
+            "data": "data/salesmetrics_managers.json"
+        },
+        {
+            "table_name": "salesmetrics_supervisor",
+            "field_names": ["supervisor_id", "phone_number", "user_id"],
+            "data": "data/salesmetrics_supervisors.json"
+        },
+        {
+            "table_name": "salesmetrics_salesperson",
+            "field_names": ["sales_person_id", "phone_number", "user_id"],
+            "data": "data/salesmetrics_managers.json"
+        },
+
+        {
+            "table_name": "salesmetrics_supplier",
+            "field_names": ["supplier_id", "phone_number", "kra_pin", "contact_person", "notes", "user_id"],
+            "data": "data/salesmetrics_suppliers.json"
+        },
+        {
+            "table_name": "salesmetrics_location",
+            "field_names": ["location_id", "latitude", "longitude", "address", "county"],
+            "data": "data/salesmetrics_locations.json"
+        },
+        {
+            "table_name": "salesmetrics_branch",
+            "field_names": ["branch_id", "branch_name", "phone_number", "email", "opening_date", "location_id", "manager_id", "supervisor_id"],
+            "data": "data/salesmetrics_branches.json"
+        },
+        {
+            "table_name": "salesmetrics_productcategory",
+            "field_names": ["category_id", "category_name"],
+            "data": "data/salesmetrics_productcategories.json"
+        },
+        {
+            "table_name": "salesmetrics_product",
+            "field_names": ["product_id", "product_name", "cost_price_currency", "cost_price", "selling_price_currency", "selling_price", "is_serialized", "serial_number", "branch_id", "category_id"],
+            "data": "data/salesmetrics_products.json"
+        },
+        {
+            "table_name": "salesmetrics_paymentmethod",
+            "field_names": ["payment_method_id", "method_name"],
+            "data": "data/salesmetrics_paymentmethods.json"
+        },
+        {
+            "table_name": "salesmetrics_cart",
+            "field_names": ["cart_id", "number_of_items", "product_id"],
+            "data": "data/salesmetrics_cart.json"
+        },
+        {
+            "table_name": "salesmetrics_sale",
+            "field_names": ["sale_id", "amount_currency", "amount", "transaction_date", "awarded_points", "cart_id", "customer_id", "payment_method_id", "sales_person_id"],
+            "data": "data/salesmetrics_sales.json"
+        },
+        {
+            "table_name": "salesmetrics_stock",
+            "field_names": ["stock_id", "quantity_on_hand", "branch_id", "product_id"],
+            "data": "data/salesmetrics_stocks.json"
+        },
     ]
 
     users_mysql_handler = CustomDummy2dbMySqlHandler(
