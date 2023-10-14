@@ -17,6 +17,7 @@ drf-nested-routers = "^0.93.4"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.4"
+ujson = "^5.8.0"
 
 [build-system]
 requires = ["poetry-core"]
