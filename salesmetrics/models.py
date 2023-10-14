@@ -58,7 +58,7 @@ class Location(models.Model):
 class Branch(models.Model):
     branch_id = models.BigAutoField(primary_key=True)
     branch_name = models.CharField(max_length=50)
-    location = models.OneToOneField(
+    location = models.ForeignKey(
         Location, on_delete=models.SET_NULL, null=True)
     manager = models.OneToOneField(
         Manager, on_delete=models.SET_NULL, null=True)
