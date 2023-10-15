@@ -9,5 +9,7 @@ router.register('salespersons', views.SalesPersonViewSet)
 router.register('supervisors', views.SupervisorViewSet)
 router.register('managers', views.ManagerViewSet)
 router.register('suppliers', views.SupplierViewSet)
+router.register('locations', views.LocationViewSet)
+router.register('branches', views.BranchViewSet)
 
 urlpatterns = router.urls
