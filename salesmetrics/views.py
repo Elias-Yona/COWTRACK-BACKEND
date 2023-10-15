@@ -3,10 +3,11 @@ from django.conf import settings
 from rest_framework.viewsets import ModelViewSet
 
 from .models import (Customer, SalesPerson, Supervisor,
-                     Manager, Supplier, Location, Branch, ProductCategory)
+                     Manager, Supplier, Location, Branch, ProductCategory, Product)
 from .serializers import (
     CustomerSerializer, SalesPersonSerializer, SupervisorSerializer, ManagerSerializer,
-    SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer)
+    SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
+    ProductSerializer)
 
 
 class CustomerViewSet(ModelViewSet):
@@ -48,3 +49,8 @@ class BranchViewSet(ModelViewSet):
 class ProductCategoryViewSet(ModelViewSet):
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
+
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer

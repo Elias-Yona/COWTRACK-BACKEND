@@ -12,5 +12,6 @@ router.register('suppliers', views.SupplierViewSet)
 router.register('locations', views.LocationViewSet)
 router.register('branches', views.BranchViewSet)
 router.register('product-categories', views.ProductCategoryViewSet)
+router.register('products', views.ProductViewSet)
 
 urlpatterns = router.urls

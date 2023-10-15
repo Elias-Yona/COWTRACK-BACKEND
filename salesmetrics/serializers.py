@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import (Customer, SalesPerson, Supervisor,
-                     Manager, Supplier, Location, Branch, ProductCategory)
+                     Manager, Supplier, Location, Branch, ProductCategory, Product)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -97,3 +97,21 @@ class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
         fields = ['category_id', 'category_name',]
+
+
+class SimpleBranchSerializer(serializers.Serializer):
+    branch_id = serializers.IntegerField()
+    branch_name = serializers.CharField(max_length=50)
+    location = LocationSerializer()
+    phone_number = serializers.CharField(max_length=15)
+    email = serializers.EmailField(max_length=50)
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    branch = SimpleBranchSerializer()
+    category = ProductCategory()
+
+    class Meta:
+        model = Product
+        fields = ['product_id', 'product_name', 'cost_price_currency', 'cost_price', 'selling_price_currency', 'selling_price', 'is_serialized',
+                  'serial_number', 'category', 'branch']
