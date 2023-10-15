@@ -218,13 +218,13 @@ files = [
 
 [[package]]
 name = "py-moneyed"
-version = "3.0"
+version = "2.0"
 description = "Provides Currency and Money classes for use in your Python code."
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.6"
 files = [
-    {file = "py-moneyed-3.0.tar.gz", hash = "sha256:4906f0f02cf2b91edba2e156f2d4e9a78f224059ab8c8fa2ff26230c75d894e8"},
-    {file = "py_moneyed-3.0-py3-none-any.whl", hash = "sha256:9583a14f99c05b46196193d8185206e9b73c8439fc8a5eee9cfc7e733676d9bb"},
+    {file = "py-moneyed-2.0.tar.gz", hash = "sha256:a56e1987deacb2e0eac5904552699a5d3fa251042e528bf2ff74a72359f5e5b3"},
+    {file = "py_moneyed-2.0-py3-none-any.whl", hash = "sha256:1fafe552cfa3cba579d026924c27b070d71b4140e50ef4535e4083b3f4f2473f"},
 ]
 
 [package.dependencies]
@@ -256,6 +256,21 @@ files = [
     {file = "pytz-2023.3.post1-py2.py3-none-any.whl", hash = "sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7"},
     {file = "pytz-2023.3.post1.tar.gz", hash = "sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b"},
 ]
+
+[[package]]
+name = "rest-framework-money-field"
+version = "2.0.0"
+description = "A DRF serializer for monetary values."
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "rest-framework-money-field-2.0.0.tar.gz", hash = "sha256:19530226864b94359f5928f17856fe4fcae8ceeb6b4269140a7b444a47306b5d"},
+    {file = "rest_framework_money_field-2.0.0-py3-none-any.whl", hash = "sha256:77c6ab5cf72051b86c3d6244850a5796cd2b13b164376c79fa5b7e6e9608e539"},
+]
+
+[package.dependencies]
+djangorestframework = ">3.7.0,<4.0.0"
+py-moneyed = ">=2.0,<3.0"
 
 [[package]]
 name = "setuptools"
@@ -432,4 +447,4 @@ termcolor = ">=2.3,<3.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "d31c2979eaa0e98cd5978d553ca4bc0c5bbf342f38d31eb6f4dc928c27fc3f8e"
+content-hash = "5de9c1ab94bfcbc5ca8dc8a41108b4ca29984bf2856836cec61c28c839a206eb"

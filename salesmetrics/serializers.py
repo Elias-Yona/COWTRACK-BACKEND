@@ -1,8 +1,10 @@
 from rest_framework import serializers
 
+from rest_framework_money_field import MoneyField
+
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
-                     StockTransfer, StockDistribution)
+                     StockTransfer, StockDistribution, Cart)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -161,3 +163,21 @@ class StockDistributionSerializer(serializers.ModelSerializer):
         model = StockDistribution
         fields = ['stock_distribution_id', 'quantity', 'distribution_date',
                   'stock_distribution_from', 'stock_distribution_to']
+
+
+class SimpleProductCartSerializer(serializers.Serializer):
+    product_name = serializers.CharField(max_length=50)
+    selling_price = MoneyField()
+    serial_number = serializers.CharField(max_length=50)
+
+
+class CartSerializer(serializers.ModelSerializer):
+    total_price = serializers.SerializerMethodField('get_total_price')
+    product = SimpleProductCartSerializer()
+
+    class Meta:
+        model = Cart
+        fields = ['cart_id', 'number_of_items', 'product', 'total_price']
+
+    def get_total_price(self, cart):
+        return cart.number_of_items * cart.product.selling_price.amount
