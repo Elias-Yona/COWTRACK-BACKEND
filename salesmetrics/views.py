@@ -52,5 +52,6 @@ class ProductCategoryViewSet(ModelViewSet):
 
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().select_related(
+        "branch").select_related("category")
     serializer_class = ProductSerializer

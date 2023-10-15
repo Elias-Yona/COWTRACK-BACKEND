@@ -108,10 +108,16 @@ class SimpleBranchSerializer(serializers.Serializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    category = serializers.SerializerMethodField('get_category')
     branch = SimpleBranchSerializer()
-    category = ProductCategory()
 
     class Meta:
         model = Product
         fields = ['product_id', 'product_name', 'cost_price_currency', 'cost_price', 'selling_price_currency', 'selling_price', 'is_serialized',
                   'serial_number', 'category', 'branch']
+
+    def get_category(self, obj):
+        return {
+            "id": obj.category.category_id,
+            "name": obj.category.category_name
+        }
