@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
-                     StockTransfer)
+                     StockTransfer, StockDistribution)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -150,3 +150,14 @@ class StockTransferSerializer(serializers.ModelSerializer):
         model = StockTransfer
         fields = ['stock_transfer_id', 'quantity', 'transfer_date',
                   'stock_transfer_from', 'stock_transfer_to']
+
+
+class StockDistributionSerializer(serializers.ModelSerializer):
+    stock_distribution_from = StockSerializer()
+    stock_distribution_to = StockSerializer()
+    distribution_date = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = StockDistribution
+        fields = ['stock_distribution_id', 'quantity', 'distribution_date',
+                  'stock_distribution_from', 'stock_distribution_to']

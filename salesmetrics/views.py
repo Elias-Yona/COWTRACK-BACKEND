@@ -4,11 +4,11 @@ from rest_framework.viewsets import ModelViewSet
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product,
-                     Stock, StockTransfer)
+                     Stock, StockTransfer, StockDistribution)
 from .serializers import (
     CustomerSerializer, SalesPersonSerializer, SupervisorSerializer, ManagerSerializer,
     SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
-    ProductSerializer, StockSerializer, StockTransferSerializer)
+    ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer)
 
 
 class CustomerViewSet(ModelViewSet):
@@ -68,3 +68,9 @@ class StockTransferViewSet(ModelViewSet):
     queryset = StockTransfer.objects.all().select_related(
         "stock_transfer_from").select_related("stock_transfer_to")
     serializer_class = StockTransferSerializer
+
+
+class StockDistributionViewSet(ModelViewSet):
+    queryset = StockDistribution.objects.all().select_related(
+        "stock_distribution_from").select_related("stock_distribution_to")
+    serializer_class = StockDistributionSerializer
