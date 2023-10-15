@@ -4,7 +4,7 @@ from rest_framework_money_field import MoneyField
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
-                     StockTransfer, StockDistribution, Cart)
+                     StockTransfer, StockDistribution, Cart, PaymentMethod)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -181,3 +181,9 @@ class CartSerializer(serializers.ModelSerializer):
 
     def get_total_price(self, cart):
         return cart.number_of_items * cart.product.selling_price.amount
+
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentMethod
+        fields = ['payment_method_id', 'method_name']

@@ -17,5 +17,6 @@ router.register('stock', views.StockViewSet)
 router.register('stock-transfers', views.StockTransferViewSet)
 router.register('stock-distributions', views.StockDistributionViewSet)
 router.register('cart', views.CartViewSet)
+router.register('payment-methods', views.PaymentMethodViewSet)
 
 urlpatterns = router.urls
