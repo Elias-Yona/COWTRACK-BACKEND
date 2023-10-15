@@ -146,3 +146,7 @@ if DEBUG:
     PASSWORD_HASHERS = [
         'django.contrib.auth.hashers.MD5PasswordHasher',
     ]
+
+
+# DJANGO MONEY
+SERIALIZATION_MODULES = {"json": "djmoney.serializers"}

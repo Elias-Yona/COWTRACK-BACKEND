@@ -258,21 +258,6 @@ files = [
 ]
 
 [[package]]
-name = "rest-framework-money-field"
-version = "2.0.0"
-description = "A DRF serializer for monetary values."
-optional = false
-python-versions = ">=3.8,<4.0"
-files = [
-    {file = "rest-framework-money-field-2.0.0.tar.gz", hash = "sha256:19530226864b94359f5928f17856fe4fcae8ceeb6b4269140a7b444a47306b5d"},
-    {file = "rest_framework_money_field-2.0.0-py3-none-any.whl", hash = "sha256:77c6ab5cf72051b86c3d6244850a5796cd2b13b164376c79fa5b7e6e9608e539"},
-]
-
-[package.dependencies]
-djangorestframework = ">3.7.0,<4.0.0"
-py-moneyed = ">=2.0,<3.0"
-
-[[package]]
 name = "setuptools"
 version = "68.2.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
@@ -447,4 +432,4 @@ termcolor = ">=2.3,<3.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "5de9c1ab94bfcbc5ca8dc8a41108b4ca29984bf2856836cec61c28c839a206eb"
+content-hash = "d31c2979eaa0e98cd5978d553ca4bc0c5bbf342f38d31eb6f4dc928c27fc3f8e"

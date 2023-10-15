@@ -1,10 +1,12 @@
-from rest_framework import serializers
+from decimal import Decimal
 
-from rest_framework_money_field import MoneyField
+from rest_framework import serializers
+from djmoney.contrib.django_rest_framework import MoneyField
+from rest_framework.serializers import DecimalField
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
-                     StockTransfer, StockDistribution, Cart, PaymentMethod)
+                     StockTransfer, StockDistribution, Cart, PaymentMethod, Sale)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -167,7 +169,7 @@ class StockDistributionSerializer(serializers.ModelSerializer):
 
 class SimpleProductCartSerializer(serializers.Serializer):
     product_name = serializers.CharField(max_length=50)
-    selling_price = MoneyField()
+    selling_price = MoneyField(max_digits=19, decimal_places=2)
     serial_number = serializers.CharField(max_length=50)
 
 
@@ -187,3 +189,30 @@ class PaymentMethodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentMethod
         fields = ['payment_method_id', 'method_name']
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    sales_person = serializers.HyperlinkedRelatedField(
+        view_name='salesperson-detail',
+        queryset=SalesPerson.objects.all()
+    )
+    cart = serializers.HyperlinkedRelatedField(
+        view_name='cart-detail',
+        queryset=Cart.objects.all()
+    )
+    customer = serializers.HyperlinkedRelatedField(
+        view_name='customer-detail',
+        queryset=Customer.objects.all()
+    )
+    payment_method = PaymentMethodSerializer()
+    balance = serializers.SerializerMethodField('get_balance')
+
+    class Meta:
+        model = Sale
+        fields = ['sale_id', 'amount', 'transaction_date', 'awarded_points',
+                  'sales_person', 'cart', 'customer', 'payment_method', 'balance']
+
+    def get_balance(self, sale):
+        cart_serializer = CartSerializer(sale.cart, context=self.context)
+        total_price = cart_serializer.get_total_price(sale.cart)
+        return sale.amount.amount - total_price
