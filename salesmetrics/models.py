@@ -78,9 +78,9 @@ class Product(models.Model):
     product_id = models.BigAutoField(primary_key=True)
     product_name = models.CharField(max_length=50)
     cost_price = MoneyField(
-        max_digits=19, decimal_places=4, default_currency='KSH')
+        max_digits=19, decimal_places=4, default_currency='kES')
     selling_price = MoneyField(
-        max_digits=19, decimal_places=4, default_currency='KSH')
+        max_digits=19, decimal_places=4, default_currency='KES')
     is_serialized = models.BooleanField(default=1)
     serial_number = models.CharField(max_length=50, null=True)
     category = models.ForeignKey(
@@ -133,7 +133,7 @@ class PaymentMethod(models.Model):
 class Sale(models.Model):
     sale_id = models.BigAutoField(primary_key=True)
     amount = MoneyField(
-        max_digits=19, decimal_places=4, default_currency='KSH')
+        max_digits=19, decimal_places=4, default_currency='KES')
     transaction_date = models.DateTimeField(auto_now_add=True)
     awarded_points = models.IntegerField()
     sales_person = models.ForeignKey(
