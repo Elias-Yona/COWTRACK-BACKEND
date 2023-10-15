@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import (Customer, SalesPerson, Supervisor,
-                     Manager, Supplier, Location, Branch)
+                     Manager, Supplier, Location, Branch, ProductCategory)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -60,23 +60,6 @@ class LocationSerializer(serializers.ModelSerializer):
                   'longitude', 'address', 'county']
 
 
-class CustomManagerSerializer(serializers.Serializer):
-    # user = CustomUserSerializer()
-    manager = ManagerSerializer()
-
-    # first_name = serializers.CharField(max_length=50, source='user.first_name')
-    # last_name = serializers.CharField(max_length=50, source='user.last_name')
-    # username = serializers.CharField(max_length=50, source='user.username')
-    # email = serializers.EmailField(max_length=50, source='user.email')
-    phone_number = serializers.CharField(
-        max_length=15, source='manager.phone_number')
-
-
-# class ManagerSerializer(serializers.Serializer):
-#     user = CustomUserSerializer()
-#     phone_number = serializers.CharField(max_length=15)
-
-
 class BranchSerializer(serializers.ModelSerializer):
     manager = serializers.SerializerMethodField('get_manager')
     supervisor = serializers.SerializerMethodField('get_supervisor')
@@ -108,3 +91,9 @@ class BranchSerializer(serializers.ModelSerializer):
                 "date_joined": obj.manager.user.date_joined,
             }
         return None
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ['category_id', 'category_name',]
