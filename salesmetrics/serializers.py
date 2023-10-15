@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import (Customer, SalesPerson, Supervisor,
-                     Manager, Supplier, Location, Branch, ProductCategory, Product)
+                     Manager, Supplier, Location, Branch, ProductCategory, Product, Stock)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -121,3 +121,20 @@ class ProductSerializer(serializers.ModelSerializer):
             "id": obj.category.category_id,
             "name": obj.category.category_name
         }
+
+
+class SimpleProductSerializer(serializers.Serializer):
+    product_name = serializers.CharField(max_length=50)
+
+
+class SimpleBranchSerializer(serializers.Serializer):
+    branch_name = serializers.CharField(max_length=50)
+
+
+class StockSerializer(serializers.ModelSerializer):
+    product = SimpleProductSerializer()
+    branch = SimpleBranchSerializer()
+
+    class Meta:
+        model = Stock
+        fields = ['stock_id', 'quantity_on_hand', 'product', 'branch']
