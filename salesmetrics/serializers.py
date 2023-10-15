@@ -20,28 +20,28 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['customer_id', 'phone_number',
                   'kra_pin', 'contact_person', 'address', 'user']
-        user = UserSerializer()
+    user = UserSerializer()
 
 
 class SalesPersonSerializer(serializers.ModelSerializer):
     class Meta:
         model = SalesPerson
         fields = ['sales_person_id', 'phone_number', 'user']
-        user = UserSerializer()
+    user = UserSerializer()
 
 
 class SupervisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supervisor
         fields = ['supervisor_id', 'phone_number', 'user']
-        user = UserSerializer()
+    user = UserSerializer()
 
 
 class ManagerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Manager
         fields = ['manager_id', 'phone_number', 'user']
-        user = UserSerializer()
+    user = UserSerializer()
 
 
 class SupplierSerializer(serializers.ModelSerializer):
@@ -49,4 +49,4 @@ class SupplierSerializer(serializers.ModelSerializer):
         model = Supplier
         fields = ['supplier_id', 'phone_number',
                   'kra_pin', 'contact_person', 'notes', 'user']
-        user = UserSerializer()
+    user = UserSerializer()
