@@ -13,7 +13,7 @@ from .serializers import (
 
 
 class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.all()
+    queryset = Customer.objects.all().select_related("user").order_by('user__id')
     serializer_class = CustomerSerializer
 
 
