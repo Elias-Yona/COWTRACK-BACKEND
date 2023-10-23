@@ -37,6 +37,25 @@ class CustomerSerializer(serializers.ModelSerializer):
 
         return customer
 
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            username = user_data.get('username')
+            if username:
+                user, created = get_user_model().objects.get_or_create(username=username)
+                instance.user = user
+                del user_data['username']
+
+                user.first_name = user_data.get('first_name', user.first_name)
+                user.last_name = user_data.get('last_name', user.last_name)
+                user.email = user_data.get('email', user.email)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
 
 class SalesPersonSerializer(serializers.ModelSerializer):
     class Meta:
