@@ -32,6 +32,7 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.pop('user', None)
+        user_data["username"] = f'{user_data.get("first_name")}@{user_data.get("last_name")}'
         user, created = get_user_model().objects.get_or_create(**user_data)
         customer = Customer.objects.create(user=user, **validated_data)
 
