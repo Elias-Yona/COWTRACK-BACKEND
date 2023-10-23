@@ -3,6 +3,8 @@ from decimal import Decimal
 from rest_framework import serializers
 from djmoney.contrib.django_rest_framework import MoneyField
 from rest_framework.serializers import DecimalField
+from django.contrib.auth import get_user_model
+
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
@@ -17,8 +19,8 @@ class CustomUserSerializer(serializers.Serializer):
     is_superuser = serializers.BooleanField(default=False)
     is_staff = serializers.BooleanField(default=False)
     is_active = serializers.BooleanField(default=True)
-    last_login = serializers.DateTimeField()
-    date_joined = serializers.DateTimeField()
+    last_login = serializers.DateTimeField(read_only=True)
+    date_joined = serializers.DateTimeField(read_only=True)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -27,6 +29,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         fields = ['customer_id', 'phone_number',
                   'kra_pin', 'contact_person', 'address', 'user']
     user = CustomUserSerializer()
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user', None)
+        user, created = get_user_model().objects.get_or_create(**user_data)
+        customer = Customer.objects.create(user=user, **validated_data)
+
+        return customer
 
 
 class SalesPersonSerializer(serializers.ModelSerializer):
