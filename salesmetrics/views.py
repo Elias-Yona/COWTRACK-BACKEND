@@ -1,6 +1,8 @@
 from django.conf import settings
 
 from rest_framework.viewsets import ModelViewSet
+from rest_framework import status
+from rest_framework.response import Response
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product,
@@ -13,7 +15,7 @@ from .serializers import (
 
 
 class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.all().select_related("user").order_by('user__id')
+    queryset = Customer.objects.all().select_related("user").order_by('-user__date_joined')
     serializer_class = CustomerSerializer
 
 

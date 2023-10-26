@@ -32,11 +32,18 @@ class CustomerSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.pop('user', None)
-        user_data["username"] = f'{user_data.get("first_name")}@{user_data.get("last_name")}'
-        user, created = get_user_model().objects.get_or_create(**user_data)
-        customer = Customer.objects.create(user=user, **validated_data)
+        username = user_data.get('username')
+        if username:
+            try:
+                user, created = get_user_model().objects.get_or_create(**user_data)
+            except IntegrityError:
+                error_message = f"User with username '{username}' already exists."
+                return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
+        customer = Customer.objects.create(user=user, **validated_data)
         return customer
+
+
 
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', None)
@@ -46,10 +53,13 @@ class CustomerSerializer(serializers.ModelSerializer):
                 user, created = get_user_model().objects.get_or_create(username=username)
                 instance.user = user
                 del user_data['username']
+                del validated_data['kra_pin']
 
                 user.first_name = user_data.get('first_name', user.first_name)
                 user.last_name = user_data.get('last_name', user.last_name)
                 user.email = user_data.get('email', user.email)
+                user.address = user_data.get('address', user.address)
+
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
