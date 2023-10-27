@@ -4,6 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product,
@@ -13,13 +14,15 @@ from .serializers import (
     SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
     ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer,
     CartSerializer, PaymentMethodSerializer, SaleSerializer)
+from .filters import CustomerFilter
 
 
 class CustomerViewSet(ModelViewSet):
     queryset = Customer.objects.all().select_related(
         "user").order_by('-user__date_joined')
     serializer_class = CustomerSerializer
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, DjangoFilterBackend]
+    filterset_class = CustomerFilter
     search_fields = ['phone_number', 'kra_pin',
                      'user__first_name', 'user__last_name']
 
