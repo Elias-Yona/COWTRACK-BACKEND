@@ -24,11 +24,15 @@ class CustomUserSerializer(serializers.Serializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
+    customer_image = serializers.SerializerMethodField('get_image')
     class Meta:
         model = Customer
         fields = ['customer_id', 'phone_number',
-                  'kra_pin', 'contact_person', 'address', 'user']
+                  'kra_pin', 'contact_person', 'address', 'customer_image', 'user']
     user = CustomUserSerializer()
+
+    def get_image(self, customer):
+        return f"https://ui-avatars.com/api/?name=${customer.user.first_name}+${customer.user.last_name}"
 
     def create(self, validated_data):
         user_data = validated_data.pop('user', None)
