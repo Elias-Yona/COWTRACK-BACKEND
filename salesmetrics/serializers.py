@@ -25,6 +25,7 @@ class CustomUserSerializer(serializers.Serializer):
 
 class CustomerSerializer(serializers.ModelSerializer):
     customer_image = serializers.SerializerMethodField('get_image')
+
     class Meta:
         model = Customer
         fields = ['customer_id', 'phone_number',
@@ -47,13 +48,13 @@ class CustomerSerializer(serializers.ModelSerializer):
         customer = Customer.objects.create(user=user, **validated_data)
         return customer
 
-
-
     def update(self, instance, validated_data):
-        fields_to_update = ['phone_number', 'kra_pin', 'contact_person', 'address']
+        fields_to_update = ['phone_number',
+                            'kra_pin', 'contact_person', 'address']
 
         for field_name in fields_to_update:
-            new_value = validated_data.get(field_name, getattr(instance, field_name))
+            new_value = validated_data.get(
+                field_name, getattr(instance, field_name))
             setattr(instance, field_name, new_value)
 
         user_data = validated_data.get('user', {})
@@ -63,15 +64,6 @@ class CustomerSerializer(serializers.ModelSerializer):
         instance.user.save()
         instance.save()
         return instance
-
-
-
-    def delete(self):
-        user = self.instance.user
-        user.delete()
-        self.instance.delete()
-
-
 
 
 class SalesPersonSerializer(serializers.ModelSerializer):
