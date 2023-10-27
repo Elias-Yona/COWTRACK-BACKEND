@@ -50,26 +50,28 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', None)
-        if user_data:
-            username = user_data.get('username')
-            if username:
-                user, created = get_user_model().objects.get_or_create(username=username)
-                instance.user = user
-                del user_data['username']
-                del validated_data['kra_pin']
+        fields_to_update = ['phone_number', 'kra_pin', 'contact_person', 'address']
 
-                user.first_name = user_data.get('first_name', user.first_name)
-                user.last_name = user_data.get('last_name', user.last_name)
-                user.email = user_data.get('email', user.email)
-                user.address = user_data.get('address', user.address)
+        for field_name in fields_to_update:
+            new_value = validated_data.get(field_name, getattr(instance, field_name))
+            setattr(instance, field_name, new_value)
 
+        user_data = validated_data.get('user', {})
+        for attr, value in user_data.items():
+            setattr(instance.user, attr, value)
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
+        instance.user.save()
         instance.save()
         return instance
+
+
+
+    def delete(self):
+        user = self.instance.user
+        user.delete()
+        self.instance.delete()
+
+
 
 
 class SalesPersonSerializer(serializers.ModelSerializer):
