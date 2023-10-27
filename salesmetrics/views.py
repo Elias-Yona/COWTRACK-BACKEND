@@ -3,6 +3,7 @@ from django.conf import settings
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product,
@@ -15,8 +16,12 @@ from .serializers import (
 
 
 class CustomerViewSet(ModelViewSet):
-    queryset = Customer.objects.all().select_related("user").order_by('-user__date_joined')
+    queryset = Customer.objects.all().select_related(
+        "user").order_by('-user__date_joined')
     serializer_class = CustomerSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['phone_number', 'kra_pin',
+                     'user__first_name', 'user__last_name']
 
     # def update(self, request, *args, **kwargs):
     #     try:
@@ -31,7 +36,6 @@ class CustomerViewSet(ModelViewSet):
     #         print(request.data)
     #         print(e)
     #         return Response({'error': error_message}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class SalesPersonViewSet(ModelViewSet):
