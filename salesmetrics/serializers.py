@@ -87,8 +87,8 @@ class SalesPersonSerializer(serializers.ModelSerializer):
                 error_message = f"User with username '{username}' already exists."
                 return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
 
-        manager = Manager.objects.create(user=user, **validated_data)
-        return manager
+        salesperson = SalesPerson.objects.create(user=user, **validated_data)
+        return salesperson
 
     def update(self, instance, validated_data):
         fields_to_update = ['phone_number']
