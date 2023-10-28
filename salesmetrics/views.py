@@ -28,19 +28,21 @@ class CustomerViewSet(ModelViewSet):
     ordering_fields = ['user__date_joined',
                        'user__first_name', 'user__last_name']
 
-    # def update(self, request, *args, **kwargs):
-    #     try:
-    #         instance = self.get_object()
-    #         serializer = self.get_serializer(instance, data=request.data, partial=False)
-    #         serializer.is_valid(raise_exception=True)
-    #         self.perform_update(serializer)
-    #         return Response(serializer.data)
-    #     except Exception as e:
-    #         # Capture the error and return it as a response
-    #         error_message = str(e)
-    #         print(request.data)
-    #         print(e)
-    #         return Response({'error': error_message}, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, *args, **kwargs):
+        print(request.data)
+        try:
+            instance = self.get_object()
+            serializer = self.get_serializer(instance, data=request.data, partial=False)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            print(request.data)
+            return Response(serializer.data)
+        except Exception as e:
+            # Capture the error and return it as a response
+            error_message = str(e)
+            print(request.data)
+            print(e)
+            return Response({'error': error_message}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SalesPersonViewSet(ModelViewSet):
