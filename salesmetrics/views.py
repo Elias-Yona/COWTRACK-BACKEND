@@ -14,7 +14,7 @@ from .serializers import (
     SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
     ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer,
     CartSerializer, PaymentMethodSerializer, SaleSerializer)
-from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter
+from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter, SupplierFilter
 
 
 class CustomerViewSet(ModelViewSet):
@@ -83,8 +83,15 @@ class ManagerViewSet(ModelViewSet):
 
 
 class SupplierViewSet(ModelViewSet):
-    queryset = Supplier.objects.all()
+    queryset = Supplier.objects.all().select_related(
+        "user").order_by('-user__date_joined')
     serializer_class = SupplierSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
+    filterset_class = SupplierFilter
+    search_fields = ['phone_number', 'kra_pin', 'contact_person',
+                     'user__first_name', 'user__last_name']
+    ordering_fields = ['user__date_joined',
+                       'user__first_name', 'user__last_name']
 
 
 class LocationViewSet(ModelViewSet):

@@ -1,6 +1,6 @@
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
-from .models import Customer, Manager, SalesPerson, Supervisor
+from .models import Customer, Manager, SalesPerson, Supervisor, Supplier
 
 
 @receiver(pre_delete, sender=Customer)
@@ -33,3 +33,11 @@ def delete_user_with_supervisor(sender, instance, **kwargs):
     pre_delete.disconnect(delete_user_with_supervisor, sender=Supervisor)
     user.delete()
     pre_delete.connect(delete_user_with_supervisor, sender=Supervisor)
+
+
+@receiver(pre_delete, sender=Supplier)
+def delete_user_with_supplier(sender, instance, **kwargs):
+    user = instance.user
+    pre_delete.disconnect(delete_user_with_supplier, sender=Supplier)
+    user.delete()
+    pre_delete.connect(delete_user_with_supplier, sender=Supplier)

@@ -190,11 +190,46 @@ class ManagerSerializer(serializers.ModelSerializer):
 
 
 class SupplierSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField('get_image')
+
     class Meta:
         model = Supplier
         fields = ['supplier_id', 'phone_number',
-                  'kra_pin', 'contact_person', 'notes', 'user']
+                  'kra_pin', 'contact_person', 'image', 'notes', 'user']
     user = CustomUserSerializer()
+
+    def get_image(self, supplier):
+        return f"https://ui-avatars.com/api/?name={supplier.user.first_name}+{supplier.user.last_name}"
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user', None)
+        username = user_data.get('username')
+        if username:
+            try:
+                user, created = get_user_model().objects.get_or_create(**user_data)
+            except IntegrityError:
+                error_message = f"User with username '{username}' already exists."
+                return Response({"error": error_message}, status=status.HTTP_400_BAD_REQUEST)
+
+        supplier = Supplier.objects.create(user=user, **validated_data)
+        return supplier
+
+    def update(self, instance, validated_data):
+        fields_to_update = ['phone_number',
+                            'kra_pin', 'contact_person', 'notes']
+
+        for field_name in fields_to_update:
+            new_value = validated_data.get(
+                field_name, getattr(instance, field_name))
+            setattr(instance, field_name, new_value)
+
+        user_data = validated_data.get('user', {})
+        for attr, value in user_data.items():
+            setattr(instance.user, attr, value)
+
+        instance.user.save()
+        instance.save()
+        return instance
 
 
 class LocationSerializer(serializers.ModelSerializer):

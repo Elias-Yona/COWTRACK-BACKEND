@@ -1,5 +1,5 @@
 from django_filters.rest_framework import FilterSet
-from .models import Customer, Manager, SalesPerson, Supervisor
+from .models import Customer, Manager, SalesPerson, Supervisor, Supplier
 
 
 class CustomerFilter(FilterSet):
@@ -29,6 +29,14 @@ class SalesPersonFilter(FilterSet):
 class SupervisorFilter(FilterSet):
     class Meta:
         model = Supervisor
+        fields = {
+            'user__date_joined': ['lt', 'gt'],
+        }
+
+
+class SupplierFilter(FilterSet):
+    class Meta:
+        model = Supplier
         fields = {
             'user__date_joined': ['lt', 'gt'],
         }
