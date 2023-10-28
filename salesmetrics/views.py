@@ -14,7 +14,7 @@ from .serializers import (
     SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
     ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer,
     CartSerializer, PaymentMethodSerializer, SaleSerializer)
-from .filters import CustomerFilter, ManagerFilter
+from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter
 
 
 class CustomerViewSet(ModelViewSet):
@@ -32,7 +32,8 @@ class CustomerViewSet(ModelViewSet):
         print(request.data)
         try:
             instance = self.get_object()
-            serializer = self.get_serializer(instance, data=request.data, partial=False)
+            serializer = self.get_serializer(
+                instance, data=request.data, partial=False)
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             print(request.data)
@@ -49,6 +50,12 @@ class SalesPersonViewSet(ModelViewSet):
     queryset = SalesPerson.objects.all().select_related(
         "user").order_by('-user__date_joined')
     serializer_class = SalesPersonSerializer
+    filter_backends = [SearchFilter, DjangoFilterBackend, OrderingFilter]
+    filterset_class = SalesPersonFilter
+    search_fields = ['phone_number',
+                     'user__first_name', 'user__last_name']
+    ordering_fields = ['user__date_joined',
+                       'user__first_name', 'user__last_name']
 
 
 class SupervisorViewSet(ModelViewSet):
