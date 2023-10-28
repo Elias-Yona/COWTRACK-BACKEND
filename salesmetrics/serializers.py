@@ -24,12 +24,12 @@ class CustomUserSerializer(serializers.Serializer):
 
 
 class CustomerSerializer(serializers.ModelSerializer):
-    customer_image = serializers.SerializerMethodField('get_image')
+    image = serializers.SerializerMethodField('get_image')
 
     class Meta:
         model = Customer
         fields = ['customer_id', 'phone_number',
-                  'kra_pin', 'contact_person', 'address', 'customer_image', 'user']
+                  'kra_pin', 'contact_person', 'address', 'image', 'user']
     user = CustomUserSerializer()
 
     def get_image(self, customer):
@@ -81,11 +81,11 @@ class SupervisorSerializer(serializers.ModelSerializer):
 
 
 class ManagerSerializer(serializers.ModelSerializer):
-    manager_image = serializers.SerializerMethodField('get_image')
+    image = serializers.SerializerMethodField('get_image')
 
     class Meta:
         model = Manager
-        fields = ['manager_id', 'phone_number', 'manager_image', 'user']
+        fields = ['manager_id', 'phone_number', 'image', 'user']
     user = CustomUserSerializer()
 
     def get_image(self, manager):
