@@ -1,14 +1,23 @@
 from decimal import Decimal
 
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework import serializers
 from djmoney.contrib.django_rest_framework import MoneyField
 from rest_framework.serializers import DecimalField
 from django.contrib.auth import get_user_model
+from djoser.compat import get_user_email, get_user_email_field_name
+from djoser.conf import settings
+from djoser.serializers import UserSerializer as BaseUserSerializer
 
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
                      StockTransfer, StockDistribution, Cart, PaymentMethod, Sale)
+
+
+class UserSerializer(BaseUserSerializer):
+    class Meta(BaseUserSerializer.Meta):
+        fields = BaseUserSerializer.Meta.fields + ("first_name", "last_name")
 
 
 class CustomUserSerializer(serializers.Serializer):

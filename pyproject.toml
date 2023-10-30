@@ -17,6 +17,7 @@ mysql-connector-python = "^8.1.0"
 django-cors-headers = "^4.3.0"
 django-filter = "^23.3"
 djoser = "^2.2.0"
+djangorestframework-simplejwt = "^5.3.0"
 
 
 [tool.poetry.group.dev.dependencies]

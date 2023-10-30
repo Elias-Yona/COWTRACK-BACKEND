@@ -5,6 +5,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from djoser.views import UserViewSet
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product,
@@ -15,6 +16,11 @@ from .serializers import (
     ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer,
     CartSerializer, PaymentMethodSerializer, SaleSerializer)
 from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter, SupplierFilter
+from .serializers import UserSerializer
+
+
+class CustomUserViewSet(UserViewSet):
+    serializer_class = UserSerializer
 
 
 class CustomerViewSet(ModelViewSet):
