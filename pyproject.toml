@@ -16,6 +16,7 @@ drf-nested-routers = "^0.93.4"
 mysql-connector-python = "^8.1.0"
 django-cors-headers = "^4.3.0"
 django-filter = "^23.3"
+djoser = "^2.2.0"
 
 
 [tool.poetry.group.dev.dependencies]
