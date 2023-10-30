@@ -27,12 +27,12 @@ def delete_user_with_salesperson(sender, instance, **kwargs):
     pre_delete.connect(delete_user_with_salesperson, sender=SalesPerson)
 
 
-@receiver(pre_delete, sender=Supervisor)
-def delete_user_with_supervisor(sender, instance, **kwargs):
-    user = instance.user
-    pre_delete.disconnect(delete_user_with_supervisor, sender=Supervisor)
-    user.delete()
-    pre_delete.connect(delete_user_with_supervisor, sender=Supervisor)
+# @receiver(pre_delete, sender=Supervisor)
+# def delete_user_with_supervisor(sender, instance, **kwargs):
+#     user = instance.user
+#     pre_delete.disconnect(delete_user_with_supervisor, sender=Supervisor)
+#     user.delete()
+#     pre_delete.connect(delete_user_with_supervisor, sender=Supervisor)
 
 
 @receiver(pre_delete, sender=Supplier)
