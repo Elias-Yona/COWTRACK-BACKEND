@@ -17,6 +17,7 @@ from .serializers import (
     CartSerializer, PaymentMethodSerializer, SaleSerializer)
 from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter, SupplierFilter
 from .serializers import UserSerializer
+from .permissions import IsAdminOrReadOnly
 
 
 class CustomUserViewSet(UserViewSet):
@@ -74,6 +75,7 @@ class SupervisorViewSet(ModelViewSet):
                      'user__first_name', 'user__last_name']
     ordering_fields = ['user__date_joined',
                        'user__first_name', 'user__last_name']
+    permission_classes = [IsAdminOrReadOnly]
 
 
 class ManagerViewSet(ModelViewSet):
