@@ -4,8 +4,11 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.decorators import action, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
+from django.contrib.auth import get_user_model
 
 from .models import (Customer, SalesPerson, Supervisor,
                      Manager, Supplier, Location, Branch, ProductCategory, Product,
@@ -14,10 +17,13 @@ from .serializers import (
     CustomerSerializer, SalesPersonSerializer, SupervisorSerializer, ManagerSerializer,
     SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
     ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer,
-    CartSerializer, PaymentMethodSerializer, SaleSerializer)
+    CartSerializer, PaymentMethodSerializer, SaleSerializer, SimpleUserSerializer)
 from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter, SupplierFilter
 from .serializers import UserSerializer
 from .permissions import IsAdminOrReadOnly
+from djoser.serializers import UserSerializer
+
+User = get_user_model()
 
 
 class CustomUserViewSet(UserViewSet):
@@ -76,6 +82,18 @@ class SupervisorViewSet(ModelViewSet):
     ordering_fields = ['user__date_joined',
                        'user__first_name', 'user__last_name']
     permission_classes = [IsAdminOrReadOnly]
+
+    @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
+    def me(self, request):
+        supervisor = Supervisor.objects.get(user_id=request.user.id)
+        if request.method == 'GET':
+            serializer = SupervisorSerializer(supervisor)
+            return Response(serializer.data)
+        elif request.method == 'PUT':
+            serializer = SupervisorSerializer(supervisor, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
 
 
 class ManagerViewSet(ModelViewSet):

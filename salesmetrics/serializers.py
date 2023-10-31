@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from djoser.compat import get_user_email, get_user_email_field_name
 from djoser.conf import settings
 from djoser.serializers import UserSerializer as BaseUserSerializer
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 
 from .models import (Customer, SalesPerson, Supervisor,
@@ -15,9 +16,22 @@ from .models import (Customer, SalesPerson, Supervisor,
                      StockTransfer, StockDistribution, Cart, PaymentMethod, Sale)
 
 
+User = get_user_model()
+
+
 class UserSerializer(BaseUserSerializer):
     class Meta(BaseUserSerializer.Meta):
         fields = BaseUserSerializer.Meta.fields + ("first_name", "last_name")
+
+
+class SimpleUserSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name',
+                  'username', 'email', 'date_joined']
+
+    username = serializers.CharField(max_length=50)
+    date_joined = serializers.DateTimeField(read_only=True)
 
 
 class CustomUserSerializer(serializers.Serializer):
@@ -39,7 +53,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ['customer_id', 'phone_number',
                   'kra_pin', 'contact_person', 'address', 'image', 'user']
-    user = CustomUserSerializer()
+    user = SimpleUserSerializer()
 
     def get_image(self, customer):
         return f"https://ui-avatars.com/api/?name={customer.user.first_name}+{customer.user.last_name}"
@@ -116,17 +130,34 @@ class SalesPersonSerializer(serializers.ModelSerializer):
         return instance
 
 
-class SupervisorSerializer(serializers.ModelSerializer):
+class SupervisorSerializer(WritableNestedModelSerializer):
     image = serializers.SerializerMethodField('get_image')
 
     class Meta:
         model = Supervisor
         fields = ['supervisor_id', 'phone_number', 'image', 'user']
 
-    user = CustomUserSerializer()
+    user = SimpleUserSerializer()
 
     def get_image(self, supervisor):
         return f"https://ui-avatars.com/api/?name={supervisor.user.first_name}+{supervisor.user.last_name}"
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {})
+        username = user_data.pop('username', None)
+        validated_data['user'] = user_data
+
+        user_instance = instance.user
+        for key, value in user_data.items():
+            setattr(user_instance, key, value)
+
+        if username and not User.objects.filter(username=username).exists():
+            user_instance.username = username
+
+        user_instance.save()
+        instance.save()
+
+        return instance
 
 # class SupervisorSerializer(serializers.ModelSerializer):
 #     image = serializers.SerializerMethodField('get_image')
