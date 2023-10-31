@@ -21,7 +21,9 @@ User = get_user_model()
 
 class UserSerializer(BaseUserSerializer):
     class Meta(BaseUserSerializer.Meta):
-        fields = BaseUserSerializer.Meta.fields + ("first_name", "last_name")
+        extra_fields = ("first_name", "last_name",
+                        "is_superuser", "is_active", "is_staff", "date_joined")
+        fields = BaseUserSerializer.Meta.fields + extra_fields
 
 
 class SimpleUserSerializer(WritableNestedModelSerializer):
@@ -128,6 +130,19 @@ class SalesPersonSerializer(serializers.ModelSerializer):
         instance.user.save()
         instance.save()
         return instance
+
+
+class SuperUserSupervisorSerializer(WritableNestedModelSerializer):
+    image = serializers.SerializerMethodField('get_image')
+
+    class Meta:
+        model = Supervisor
+        fields = ['supervisor_id', 'phone_number', 'image', 'user']
+
+    user = UserSerializer()
+
+    def get_image(self, supervisor):
+        return f"https://ui-avatars.com/api/?name={supervisor.user.first_name}+{supervisor.user.last_name}"
 
 
 class SupervisorSerializer(WritableNestedModelSerializer):
