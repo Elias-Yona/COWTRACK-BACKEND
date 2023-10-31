@@ -145,6 +145,10 @@ class SupervisorSerializer(WritableNestedModelSerializer):
     def update(self, instance, validated_data):
         user_data = validated_data.pop('user', {})
         username = user_data.pop('username', None)
+
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+
         validated_data['user'] = user_data
 
         user_instance = instance.user
