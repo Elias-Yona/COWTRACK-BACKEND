@@ -4,24 +4,25 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
 
-from .models import (Customer, SalesPerson, Supervisor,
-                     Manager, Supplier, Location, Branch, ProductCategory, Product,
-                     Stock, StockTransfer, StockDistribution, Cart, PaymentMethod, Sale)
-from .serializers import (
-    CustomerSerializer, SalesPersonSerializer, SupervisorSerializer, ManagerSerializer,
-    SupplierSerializer, LocationSerializer, BranchSerializer, ProductCategorySerializer,
-    ProductSerializer, StockSerializer, StockTransferSerializer, StockDistributionSerializer, SuperUserSupervisorSerializer,
-    CartSerializer, PaymentMethodSerializer, SaleSerializer)
-from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter, SupplierFilter
-from .serializers import UserSerializer
+from .models import Customer, SalesPerson, Supervisor, Manager, Supplier, Location, Branch
+from .models import ProductCategory, Product, Stock, StockTransfer, StockDistribution, Cart
+from .models import PaymentMethod, Sale
+from .serializers import CustomerSerializer, SalesPersonSerializer, SupervisorSerializer
+from .serializers import ManagerSerializer, SupplierSerializer, LocationSerializer
+from .serializers import BranchSerializer, ProductCategorySerializer, ProductSerializer
+from .serializers import StockSerializer, StockTransferSerializer, StockDistributionSerializer
+from .serializers import SuperUserSupervisorSerializer, CartSerializer, PaymentMethodSerializer
+from .serializers import SaleSerializer, UserSerializer
+from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter
+from .filters import SupplierFilter
 from .permissions import IsAdminOrReadOnly
-# from djoser.serializers import UserSerializer
+
 
 User = get_user_model()
 
