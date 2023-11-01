@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth import authenticate, get_user_model
+from django.utils import timezone
 from rest_framework import serializers
 from djmoney.contrib.django_rest_framework import MoneyField
 from rest_framework.serializers import DecimalField
@@ -11,9 +12,10 @@ from djoser.serializers import UserSerializer as BaseUserSerializer
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
 
-from .models import (Customer, SalesPerson, Supervisor,
-                     Manager, Supplier, Location, Branch, ProductCategory, Product, Stock,
-                     StockTransfer, StockDistribution, Cart, PaymentMethod, Sale)
+from .models import Customer, SalesPerson, Supervisor, Manager, Supplier, Location, Branch
+from .models import ProductCategory, Product, Stock, StockTransfer, StockDistribution, Cart
+from .models import PaymentMethod, Sale, SupervisorBranchHistory
+from .signals import supervisor_removed_from_branch, supervisor_transferred_to_branch
 
 
 User = get_user_model()
@@ -310,15 +312,15 @@ class LocationSerializer(serializers.ModelSerializer):
                   'longitude', 'address', 'county']
 
 
-class BranchSerializer(serializers.ModelSerializer):
+class BranchSerializer(WritableNestedModelSerializer):
     manager = serializers.SerializerMethodField('get_manager')
-    supervisor = serializers.SerializerMethodField('get_supervisor')
+    # supervisor = serializers.SerializerMethodField('get_supervisor')
     location = LocationSerializer()
 
     class Meta:
         model = Branch
         fields = ['branch_id', 'branch_name',
-                  'location', 'manager', 'supervisor', 'phone_number', 'email', 'opening_date',]
+                  'location', 'manager', 'phone_number', 'email', 'opening_date',]
 
     def get_manager(self, obj):
         if obj.manager:
@@ -331,16 +333,16 @@ class BranchSerializer(serializers.ModelSerializer):
             }
         return None
 
-    def get_supervisor(self, obj):
-        if obj.manager:
-            return {
-                "phone_number": obj.supervisor.phone_number,
-                "first_name": obj.manager.user.first_name,
-                "last_name": obj.manager.user.last_name,
-                "email": obj.manager.user.email,
-                "date_joined": obj.manager.user.date_joined,
-            }
-        return None
+    # def get_supervisor(self, obj):
+    #     if obj.manager:
+    #         return {
+    #             "phone_number": obj.supervisor.phone_number,
+    #             "first_name": obj.manager.user.first_name,
+    #             "last_name": obj.manager.user.last_name,
+    #             "email": obj.manager.user.email,
+    #             "date_joined": obj.manager.user.date_joined,
+    #         }
+    #     return None
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
@@ -461,3 +463,102 @@ class SaleSerializer(serializers.ModelSerializer):
         cart_serializer = CartSerializer(sale.cart, context=self.context)
         total_price = cart_serializer.get_total_price(sale.cart)
         return sale.amount.amount - total_price
+
+
+class SupervisorBranchHistorySerializer(WritableNestedModelSerializer):
+    end_date = serializers.DateTimeField(read_only=True)
+
+    class Meta:
+        model = SupervisorBranchHistory
+        fields = ['id', 'branch', 'supervisor', 'start_date', 'end_date']
+
+
+class AddSupervisorBranchSerializer(WritableNestedModelSerializer):
+    def validate_branch_id(self, value):
+
+        if not Branch.objects.filter(pk=value).exists():
+            raise serializers.ValidationError(
+                "No branch with the given ID was found")
+        return value
+
+    def create(self, validated_data):
+        supervisor_id = validated_data.get('supervisor').supervisor_id
+        branch_id = validated_data.get('branch').branch_id
+
+        branches_history = SupervisorBranchHistory.objects.filter(
+            branch_id=branch_id)
+
+        try:
+            for branch_history in branches_history:
+                branch_end_date = branch_history.end_date
+                branch_supervisor_id = branch_history.supervisor_id
+                branch_branch_id = branch_history.branch_id
+
+                if branch_history.branch_id == branch_id:
+                    if not branch_end_date:
+                        self.instance.end_date = timezone.now()
+                        supervisor_removed_from_branch.send(
+                            sender=None, supervisor_id=branch_supervisor_id, branch_id=branch_branch_id)
+                    else:
+                        self.instance = SupervisorBranchHistory.objects.create(
+                            **self.validated_data)
+                        supervisor_transferred_to_branch.send(
+                            sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
+                else:
+                    self.instance = SupervisorBranchHistory.objects.create(
+                        **self.validated_data)
+                    supervisor_transferred_to_branch.send(
+                        sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
+
+        except AttributeError:
+            self.instance = SupervisorBranchHistory.objects.create(
+                **self.validated_data)
+            supervisor_transferred_to_branch.send(
+                sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
+        return self.instance
+
+        # previous_data = self.initial_data
+        # validated_data = self.validated_data
+
+        # print(f"previous {previous_data}")
+        # print(f"validated {validated_data.get('branch').branch_id}")
+
+        # print(f"previous {previous_data}")
+        # print(f"validated {validated_data.get('supervisor').supervisor_id}")
+
+        # try:
+        #     supervisor_branch = SupervisorBranchHistory.objects.get(
+        #         supervisor_id=supervisor_id, branch_id=branch_id)
+
+        #     previous_data = self.initial_data
+        #     validated_data = self.validated_data
+
+        #     print(f"previous {previous_data}")
+        #     print(f"validated {validated_data.get('branch').branch_id}")
+
+        #     if not supervisor_branch.end_date:
+        #         supervisor_branch = timezone.now()
+
+        # except SupervisorBranchHistory.DoesNotExist:
+        #     branches = SupervisorBranchHistory.objects.filter(
+        #         branch_id=branch_id)
+
+        #     print(branches)
+        #     for branch in branches:
+        #         if not branch.end_date:
+        #             branch.end_date = timezone.now()
+        #             branch.save()
+        #             supervisor_removed_from_branch.send(
+        #                 sender=None, supervisor_id=branch.supervisor_id, branch_id=branch.branch_id)
+
+        #     self.instance = SupervisorBranchHistory.objects.create(
+        #         supervisor_id=supervisor_id, **self.validated_data)
+
+        #     supervisor_transferred_to_branch.send(
+        #         sender=None, supervisor_id=self.instance.supervisor_id, branch_id=self.instance.branch_id)
+
+        # return self.instance
+
+    class Meta:
+        model = SupervisorBranchHistory
+        fields = ['id', 'branch', 'supervisor', 'start_date', 'end_date']

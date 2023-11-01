@@ -12,16 +12,18 @@ from django.contrib.auth import get_user_model
 
 from .models import Customer, SalesPerson, Supervisor, Manager, Supplier, Location, Branch
 from .models import ProductCategory, Product, Stock, StockTransfer, StockDistribution, Cart
-from .models import PaymentMethod, Sale
+from .models import PaymentMethod, Sale, SupervisorBranchHistory
 from .serializers import CustomerSerializer, SalesPersonSerializer, SupervisorSerializer
 from .serializers import ManagerSerializer, SupplierSerializer, LocationSerializer
 from .serializers import BranchSerializer, ProductCategorySerializer, ProductSerializer
 from .serializers import StockSerializer, StockTransferSerializer, StockDistributionSerializer
 from .serializers import SuperUserSupervisorSerializer, CartSerializer, PaymentMethodSerializer
-from .serializers import SaleSerializer, UserSerializer
+from .serializers import SaleSerializer, UserSerializer, SupervisorBranchHistorySerializer
+from .serializers import AddSupervisorBranchSerializer
 from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter
 from .filters import SupplierFilter
 from .permissions import IsAdminOrReadOnly
+from .pagination import DefaultPagination
 
 
 User = get_user_model()
@@ -175,3 +177,25 @@ class SaleViewSet(ModelViewSet):
     queryset = Sale.objects.all().select_related("sales_person").select_related(
         "cart").select_related("customer").select_related("payment_method")
     serializer_class = SaleSerializer
+
+
+class SupervisorBranchHistoryViewSet(ModelViewSet):
+    def get_serializer_context(self):
+        return {'supervisor_id': self.kwargs['supervisor_pk']}
+
+    def get_queryset(self):
+        return SupervisorBranchHistory.objects.filter(supervisor_id=self.kwargs['supervisor_pk']).select_related(
+            "supervisor").select_related("branch")
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return AddSupervisorBranchSerializer
+        if self.request.method == "GET":
+            return SupervisorBranchHistorySerializer
+
+
+class SupervisorBranchViewSet(ModelViewSet):
+    queryset = SupervisorBranchHistory.objects.all().select_related(
+        "supervisor").select_related("branch").order_by("start_date")
+    serializer_class = AddSupervisorBranchSerializer
+    pagination_class = DefaultPagination

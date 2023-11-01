@@ -27,6 +27,9 @@ class Supervisor(models.Model):
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    def __str__(self) -> str:
+        return f"{self.user.first_name} {self.user.last_name}"
+
 
 class Manager(models.Model):
     manager_id = models.BigAutoField(primary_key=True)
@@ -62,11 +65,12 @@ class Branch(models.Model):
         Location, on_delete=models.SET_NULL, null=True)
     manager = models.OneToOneField(
         Manager, on_delete=models.SET_NULL, null=True)
-    supervisor = models.OneToOneField(
-        Supervisor, on_delete=models.SET_NULL, null=True)
     phone_number = models.CharField(max_length=15)
     email = models.EmailField(max_length=50, unique=True)
     opening_date = models.DateField(auto_now_add=True)
+
+    def __str__(self) -> str:
+        return self.branch_name
 
 
 class ProductCategory(models.Model):
@@ -144,3 +148,11 @@ class Sale(models.Model):
         Customer, on_delete=models.SET_NULL, null=True)
     payment_method = models.ForeignKey(
         PaymentMethod, on_delete=models.SET_NULL, null=True)
+
+
+class SupervisorBranchHistory(models.Model):
+    supervisor = models.ForeignKey(
+        Supervisor, on_delete=models.CASCADE, null=True)
+    branch = models.ForeignKey(Branch, on_delete=models.CASCADE)
+    start_date = models.DateTimeField(auto_now_add=True)
+    end_date = models.DateTimeField(null=True)
