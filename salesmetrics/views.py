@@ -196,9 +196,15 @@ class SupervisorBranchHistoryViewSet(ModelViewSet):
 
 
 class SupervisorBranchViewSet(ModelViewSet):
-    queryset = SupervisorBranchHistory.objects.all().select_related(
-        "supervisor").select_related("branch").order_by("start_date")
     pagination_class = DefaultPagination
+    http_method_names = ['get', 'post', 'put']
+
+    def get_serializer_context(self):
+        return {'supervisor_id': self.kwargs['supervisor_pk']}
+
+    def get_queryset(self):
+        return SupervisorBranchHistory.objects.filter(supervisor_id=self.kwargs['supervisor_pk']).select_related(
+            "supervisor").select_related("branch").order_by("start_date")
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -206,3 +212,12 @@ class SupervisorBranchViewSet(ModelViewSet):
         elif self.request.method == "PUT":
             return UpdateSupervisorBranchSerializer
         return SupervisorBranchSerializer
+
+    @action(detail=True)
+    def remove(self, request, pk=None):
+        supervisor_id = pk
+        supervisor = SupervisorBranchHistory.objects.filter(
+            supervisor_id=supervisor_id).order_by('-start_date')
+        supervisor.active = False
+        supervisor.save()
+        return Response('ok')

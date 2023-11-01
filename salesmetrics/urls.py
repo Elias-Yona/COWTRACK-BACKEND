@@ -25,6 +25,6 @@ router.register("supervisor-branch", views.SupervisorBranchViewSet)
 supervisors_router = routers.NestedDefaultRouter(
     router, 'supervisors', lookup='supervisor')
 supervisors_router.register(
-    'branches', views.SupervisorBranchHistoryViewSet, basename='supervisor-branch-history')
+    'branches', views.SupervisorBranchViewSet, basename='supervisor-branch')
 
 urlpatterns = router.urls + supervisors_router.urls
