@@ -19,7 +19,8 @@ from .serializers import BranchSerializer, ProductCategorySerializer, ProductSer
 from .serializers import StockSerializer, StockTransferSerializer, StockDistributionSerializer
 from .serializers import SuperUserSupervisorSerializer, CartSerializer, PaymentMethodSerializer
 from .serializers import SaleSerializer, UserSerializer, SupervisorBranchHistorySerializer
-from .serializers import AddSupervisorBranchSerializer
+from .serializers import AddSupervisorBranchSerializer, UpdateSupervisorBranchSerializer
+from .serializers import SupervisorBranchSerializer
 from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter
 from .filters import SupplierFilter
 from .permissions import IsAdminOrReadOnly
@@ -197,5 +198,11 @@ class SupervisorBranchHistoryViewSet(ModelViewSet):
 class SupervisorBranchViewSet(ModelViewSet):
     queryset = SupervisorBranchHistory.objects.all().select_related(
         "supervisor").select_related("branch").order_by("start_date")
-    serializer_class = AddSupervisorBranchSerializer
     pagination_class = DefaultPagination
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return AddSupervisorBranchSerializer
+        elif self.request.method == "PUT":
+            return UpdateSupervisorBranchSerializer
+        return SupervisorBranchSerializer

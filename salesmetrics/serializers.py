@@ -473,6 +473,27 @@ class SupervisorBranchHistorySerializer(WritableNestedModelSerializer):
         fields = ['id', 'branch', 'supervisor', 'start_date', 'end_date']
 
 
+class SupervisorBranchSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = SupervisorBranchHistory
+        fields = ['id', 'branch', 'supervisor', 'start_date', 'end_date']
+
+    end_date = serializers.DateTimeField(read_only=True)
+
+
+class UpdateSupervisorBranchSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = SupervisorBranchHistory
+        fields = ['end_date']
+
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        supervisor_removed_from_branch.send(
+            sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
+
+        return instance
+
+
 class AddSupervisorBranchSerializer(WritableNestedModelSerializer):
     def validate_branch_id(self, value):
 
