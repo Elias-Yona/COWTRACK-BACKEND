@@ -485,43 +485,41 @@ class AddSupervisorBranchSerializer(WritableNestedModelSerializer):
         supervisor_id = validated_data['supervisor'].supervisor_id
         branch_id = validated_data['branch'].branch_id
 
-        branch_histories = SupervisorBranchHistory.objects.filter(
-            branch_id=branch_id)
-        supervisor_histories = SupervisorBranchHistory.objects.filter(
-            supervisor_id=supervisor_id)
+        branch = SupervisorBranchHistory.objects.filter(
+            branch_id=branch_id).order_by('-start_date')
 
         instance = None
 
-        for branch_history in branch_histories:
-            if not branch_history.end_date:
-                instance = branch_history
+        if not branch:
+            instance = SupervisorBranchHistory.objects.create(
+                **validated_data)
+            supervisor_transferred_to_branch.send(
+                sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
+        else:
+
+            branch = branch[0]
+            supervisor_histories = SupervisorBranchHistory.objects.filter(
+                supervisor_id=supervisor_id)
+
+            if not branch.end_date:
+                instance = branch
                 instance.end_date = timezone.now()
                 instance.save()
                 supervisor_removed_from_branch.send(
                     sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
-            else:
-                for supervisor_history in supervisor_histories:
-                    if not supervisor_history.end_date:
-                        instance = supervisor_history
-                        instance.end_date = timezone.now()
-                        instance.save()
-                        supervisor_removed_from_branch.send(
-                            sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
 
+                if not supervisor_histories:
+                    instance = SupervisorBranchHistory.objects.create(
+                        **validated_data)
+                    supervisor_transferred_to_branch.send(
+                        sender=None, supervisor_id=supervisor_id, branch_id=instance.branch_id)
+            else:
                 instance = SupervisorBranchHistory.objects.create(
                     **validated_data)
                 supervisor_transferred_to_branch.send(
                     sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
 
         if not instance:
-            for supervisor_history in supervisor_histories:
-                if not supervisor_history.end_date:
-                    instance = supervisor_history
-                    instance.end_date = timezone.now()
-                    instance.save()
-                    supervisor_removed_from_branch.send(
-                        sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
-
             instance = SupervisorBranchHistory.objects.create(**validated_data)
             supervisor_transferred_to_branch.send(
                 sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
@@ -531,3 +529,5 @@ class AddSupervisorBranchSerializer(WritableNestedModelSerializer):
     class Meta:
         model = SupervisorBranchHistory
         fields = ['id', 'branch', 'supervisor', 'start_date', 'end_date']
+
+    end_date = serializers.DateTimeField(read_only=True)
