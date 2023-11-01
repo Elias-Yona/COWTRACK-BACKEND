@@ -6,9 +6,11 @@ from rest_framework.response import Response
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import ValidationError
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 from .models import Customer, SalesPerson, Supervisor, Manager, Supplier, Location, Branch
 from .models import ProductCategory, Product, Stock, StockTransfer, StockDistribution, Cart
@@ -25,6 +27,7 @@ from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, Superviso
 from .filters import SupplierFilter
 from .permissions import IsAdminOrReadOnly
 from .pagination import DefaultPagination
+from .signals import supervisor_removed_from_branch
 
 
 User = get_user_model()
@@ -213,11 +216,23 @@ class SupervisorBranchViewSet(ModelViewSet):
             return UpdateSupervisorBranchSerializer
         return SupervisorBranchSerializer
 
-    @action(detail=True)
-    def remove(self, request, pk=None):
-        supervisor_id = pk
-        supervisor = SupervisorBranchHistory.objects.filter(
+    @action(detail=False)
+    def remove(self, request, **kwargs):
+        supervisor_id = kwargs.get('supervisor_pk')
+        supervisor_branch = SupervisorBranchHistory.objects.filter(
             supervisor_id=supervisor_id).order_by('-start_date')
-        supervisor.active = False
-        supervisor.save()
-        return Response('ok')
+        if supervisor_branch:
+            if not supervisor_branch[0].end_date:
+                initial_supervisor_branch = supervisor_branch[0]
+                initial_supervisor_branch.end_date = timezone.now()
+                initial_supervisor_branch.save()
+                supervisor_removed_from_branch.send(
+                    sender=None, supervisor_id=initial_supervisor_branch.supervisor_id, branch_id=initial_supervisor_branch.branch_id)
+            else:
+                raise ValidationError({"error":
+                                       f'supervisor with the given ID was removed from the branch on {supervisor_branch[0].end_date}.'})
+        else:
+            raise ValidationError(
+                {'error': 'No supervisor with the given ID was found.'})
+
+        return Response({"message": "supervisor removed from branch"})

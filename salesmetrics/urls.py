@@ -20,11 +20,11 @@ router.register('cart', views.CartViewSet)
 router.register('payment-methods', views.PaymentMethodViewSet)
 router.register('sales', views.SaleViewSet)
 router.register("users", views.CustomUserViewSet)
-router.register("supervisor-branch", views.SupervisorBranchViewSet)
+# router.register("supervisor-branch", views.SupervisorBranchViewSet)
 
 supervisors_router = routers.NestedDefaultRouter(
     router, 'supervisors', lookup='supervisor')
 supervisors_router.register(
-    'branches', views.SupervisorBranchViewSet, basename='supervisor-branch')
+    'branches', views.SupervisorBranchViewSet, basename='supervisor-branch-history')
 
 urlpatterns = router.urls + supervisors_router.urls
