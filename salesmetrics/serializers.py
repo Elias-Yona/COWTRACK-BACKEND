@@ -482,82 +482,51 @@ class AddSupervisorBranchSerializer(WritableNestedModelSerializer):
         return value
 
     def create(self, validated_data):
-        supervisor_id = validated_data.get('supervisor').supervisor_id
-        branch_id = validated_data.get('branch').branch_id
+        supervisor_id = validated_data['supervisor'].supervisor_id
+        branch_id = validated_data['branch'].branch_id
 
-        branches_history = SupervisorBranchHistory.objects.filter(
+        branch_histories = SupervisorBranchHistory.objects.filter(
             branch_id=branch_id)
+        supervisor_histories = SupervisorBranchHistory.objects.filter(
+            supervisor_id=supervisor_id)
 
-        try:
-            for branch_history in branches_history:
-                branch_end_date = branch_history.end_date
-                branch_supervisor_id = branch_history.supervisor_id
-                branch_branch_id = branch_history.branch_id
+        instance = None
 
-                if branch_history.branch_id == branch_id:
-                    if not branch_end_date:
-                        self.instance.end_date = timezone.now()
+        for branch_history in branch_histories:
+            if not branch_history.end_date:
+                instance = branch_history
+                instance.end_date = timezone.now()
+                instance.save()
+                supervisor_removed_from_branch.send(
+                    sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
+            else:
+                for supervisor_history in supervisor_histories:
+                    if not supervisor_history.end_date:
+                        instance = supervisor_history
+                        instance.end_date = timezone.now()
+                        instance.save()
                         supervisor_removed_from_branch.send(
-                            sender=None, supervisor_id=branch_supervisor_id, branch_id=branch_branch_id)
-                    else:
-                        self.instance = SupervisorBranchHistory.objects.create(
-                            **self.validated_data)
-                        supervisor_transferred_to_branch.send(
-                            sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
-                else:
-                    self.instance = SupervisorBranchHistory.objects.create(
-                        **self.validated_data)
-                    supervisor_transferred_to_branch.send(
-                        sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
+                            sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
 
-        except AttributeError:
-            self.instance = SupervisorBranchHistory.objects.create(
-                **self.validated_data)
+                instance = SupervisorBranchHistory.objects.create(
+                    **validated_data)
+                supervisor_transferred_to_branch.send(
+                    sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
+
+        if not instance:
+            for supervisor_history in supervisor_histories:
+                if not supervisor_history.end_date:
+                    instance = supervisor_history
+                    instance.end_date = timezone.now()
+                    instance.save()
+                    supervisor_removed_from_branch.send(
+                        sender=None, supervisor_id=instance.supervisor_id, branch_id=instance.branch_id)
+
+            instance = SupervisorBranchHistory.objects.create(**validated_data)
             supervisor_transferred_to_branch.send(
                 sender=None, supervisor_id=supervisor_id, branch_id=branch_id)
-        return self.instance
 
-        # previous_data = self.initial_data
-        # validated_data = self.validated_data
-
-        # print(f"previous {previous_data}")
-        # print(f"validated {validated_data.get('branch').branch_id}")
-
-        # print(f"previous {previous_data}")
-        # print(f"validated {validated_data.get('supervisor').supervisor_id}")
-
-        # try:
-        #     supervisor_branch = SupervisorBranchHistory.objects.get(
-        #         supervisor_id=supervisor_id, branch_id=branch_id)
-
-        #     previous_data = self.initial_data
-        #     validated_data = self.validated_data
-
-        #     print(f"previous {previous_data}")
-        #     print(f"validated {validated_data.get('branch').branch_id}")
-
-        #     if not supervisor_branch.end_date:
-        #         supervisor_branch = timezone.now()
-
-        # except SupervisorBranchHistory.DoesNotExist:
-        #     branches = SupervisorBranchHistory.objects.filter(
-        #         branch_id=branch_id)
-
-        #     print(branches)
-        #     for branch in branches:
-        #         if not branch.end_date:
-        #             branch.end_date = timezone.now()
-        #             branch.save()
-        #             supervisor_removed_from_branch.send(
-        #                 sender=None, supervisor_id=branch.supervisor_id, branch_id=branch.branch_id)
-
-        #     self.instance = SupervisorBranchHistory.objects.create(
-        #         supervisor_id=supervisor_id, **self.validated_data)
-
-        #     supervisor_transferred_to_branch.send(
-        #         sender=None, supervisor_id=self.instance.supervisor_id, branch_id=self.instance.branch_id)
-
-        # return self.instance
+        return instance
 
     class Meta:
         model = SupervisorBranchHistory
