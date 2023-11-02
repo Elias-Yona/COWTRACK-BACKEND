@@ -1,5 +1,5 @@
 from django.conf import settings
-
+from django.http import JsonResponse
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import status
 from rest_framework.response import Response
@@ -28,6 +28,7 @@ from .filters import SupplierFilter
 from .permissions import IsSuperuser
 from .pagination import DefaultPagination
 from .signals import supervisor_removed_from_branch
+from .messages import errors, info
 
 
 User = get_user_model()
@@ -211,7 +212,28 @@ class SupervisorBranchViewSet(ModelViewSet):
     def get_serializer_context(self):
         return {'supervisor_id': self.kwargs['supervisor_pk']}
 
-    def get_queryset(self):
+    def get_queryset(self, **kwargs):
+        print(self.kwargs)
+        remove_param_value = self.request.query_params.get('remove')
+        if remove_param_value == "last":
+            supervisor_id = self.kwargs.get('supervisor_pk')
+            supervisor_branch_history = SupervisorBranchHistory.objects.filter(
+                supervisor_id=supervisor_id).order_by('-start_date')
+            if supervisor_branch_history:
+                supervisor_branch = supervisor_branch_history[0]
+                if not supervisor_branch.end_date:
+                    supervisor_branch.end_date = timezone.now()
+                    supervisor_branch.save()
+                    supervisor_removed_from_branch.send(
+                        sender=None, supervisor_id=supervisor_branch.supervisor_id, branch_id=supervisor_branch.branch_id)
+                    raise ValidationError(
+                        {"detail": info['supervisor_removed']},)
+                else:
+                    raise ValidationError(
+                        {'detail': errors['supervisor_removed_from_branch'] % supervisor_branch.end_date})
+            else:
+                raise ValidationError(
+                    {'detail': errors['supervisor_not_found']})
         return SupervisorBranchHistory.objects.filter(supervisor_id=self.kwargs['supervisor_pk']).select_related(
             "supervisor").select_related("branch").order_by("start_date")
 
@@ -221,24 +243,3 @@ class SupervisorBranchViewSet(ModelViewSet):
         elif self.request.method == "PUT":
             return UpdateSupervisorBranchSerializer
         return SupervisorBranchSerializer
-
-    @action(detail=False)
-    def remove(self, request, **kwargs):
-        supervisor_id = kwargs.get('supervisor_pk')
-        supervisor_branch = SupervisorBranchHistory.objects.filter(
-            supervisor_id=supervisor_id).order_by('-start_date')
-        if supervisor_branch:
-            if not supervisor_branch[0].end_date:
-                initial_supervisor_branch = supervisor_branch[0]
-                initial_supervisor_branch.end_date = timezone.now()
-                initial_supervisor_branch.save()
-                supervisor_removed_from_branch.send(
-                    sender=None, supervisor_id=initial_supervisor_branch.supervisor_id, branch_id=initial_supervisor_branch.branch_id)
-            else:
-                raise ValidationError({"detail":
-                                       f'supervisor with the given ID was removed from the branch on {supervisor_branch[0].end_date}.'})
-        else:
-            raise ValidationError(
-                {'detail': 'No supervisor with the given ID was found.'})
-
-        return Response({"detail": "supervisor removed from branch"})
