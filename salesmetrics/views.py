@@ -92,15 +92,20 @@ class SupervisorViewSet(ModelViewSet):
 
     @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
-        supervisor = Supervisor.objects.get(user_id=request.user.id)
-        if request.method == 'GET':
-            serializer = SupervisorSerializer(supervisor)
-            return Response(serializer.data)
-        elif request.method == 'PUT':
-            serializer = SupervisorSerializer(supervisor, data=request.data)
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            return Response(serializer.data)
+        try:
+            supervisor = Supervisor.objects.get(user_id=request.user.id)
+            if request.method == 'GET':
+                serializer = SupervisorSerializer(supervisor)
+                return Response(serializer.data)
+            elif request.method == 'PUT':
+                serializer = SupervisorSerializer(
+                    supervisor, data=request.data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                return Response(serializer.data)
+        except Supervisor.DoesNotExist:
+            raise ValidationError(
+                {"detail": "You are not allowed to perform this action"})
 
 
 class ManagerViewSet(ModelViewSet):
