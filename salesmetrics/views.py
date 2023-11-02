@@ -25,7 +25,7 @@ from .serializers import AddSupervisorBranchSerializer, UpdateSupervisorBranchSe
 from .serializers import SupervisorBranchSerializer
 from .filters import CustomerFilter, ManagerFilter, SalesPersonFilter, SupervisorFilter
 from .filters import SupplierFilter
-from .permissions import IsAdminOrReadOnly
+from .permissions import IsSuperuser
 from .pagination import DefaultPagination
 from .signals import supervisor_removed_from_branch
 
@@ -88,7 +88,7 @@ class SupervisorViewSet(ModelViewSet):
                      'user__first_name', 'user__last_name']
     ordering_fields = ['user__date_joined',
                        'user__first_name', 'user__last_name']
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsSuperuser]
 
     @action(detail=False, methods=['GET', 'PUT'], permission_classes=[IsAuthenticated])
     def me(self, request):
@@ -201,6 +201,7 @@ class SupervisorBranchHistoryViewSet(ModelViewSet):
 class SupervisorBranchViewSet(ModelViewSet):
     pagination_class = DefaultPagination
     http_method_names = ['get', 'post', 'put']
+    permission_classes = [IsSuperuser]
 
     def get_serializer_context(self):
         return {'supervisor_id': self.kwargs['supervisor_pk']}
@@ -229,10 +230,10 @@ class SupervisorBranchViewSet(ModelViewSet):
                 supervisor_removed_from_branch.send(
                     sender=None, supervisor_id=initial_supervisor_branch.supervisor_id, branch_id=initial_supervisor_branch.branch_id)
             else:
-                raise ValidationError({"error":
+                raise ValidationError({"detail":
                                        f'supervisor with the given ID was removed from the branch on {supervisor_branch[0].end_date}.'})
         else:
             raise ValidationError(
-                {'error': 'No supervisor with the given ID was found.'})
+                {'detail': 'No supervisor with the given ID was found.'})
 
-        return Response({"message": "supervisor removed from branch"})
+        return Response({"detail": "supervisor removed from branch"})
